@@ -73,7 +73,7 @@ stage.level1.prototype = {
         game.camera.follow(this.bat);
         game.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHight)
 
-        
+
         keyZ = game.input.keyboard.addKey(Phaser.Keyboard.Z);
         keyZ.onDown.add(restartPosition, this);
 
@@ -84,9 +84,9 @@ stage.level1.prototype = {
         keyUP = game.input.keyboard.addKey(Phaser.Keyboard.UP);
         keyUP.onDown.add(upJump, this);
 
-        function upJump(){
-            if(canMove){
-                this.bat.body.velocity.y = -275;    
+        function upJump() {
+            if (canMove) {
+                this.bat.body.velocity.y = -275;
             }
         }
 
@@ -159,6 +159,7 @@ function death() {
         bat.angle = 20;
         console.log('death');
         bat.body.velocity.y = -275;
+        game.camera.shake(0.005, 250);
 
         timeOut = setTimeout(function () {
             console.log('restart position')
