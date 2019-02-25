@@ -1,0 +1,161 @@
+{
+    "frames": [
+        {
+            "filename": "bird_0",
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 34,
+                "h": 24
+            }
+        },
+        {
+            "filename": "bird_1",
+            "frame": {
+                "x": 0,
+                "y": 25,
+                "w": 34,
+                "h": 24
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 34,
+                "h": 24
+            }
+        },
+        {
+            "filename": "bird_2",
+            "frame": {
+                "x": 35,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 34,
+                "h": 24
+            }
+        },
+        {
+            "filename": "bird_3",
+            "frame": {
+                "x": 35,
+                "y": 25,
+                "w": 34,
+                "h": 24
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 34,
+                "h": 24
+            }
+        },
+        {
+            "filename": "bird_4",
+            "frame": {
+                "x": 0,
+                "y": 50,
+                "w": 34,
+                "h": 24
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 34,
+                "h": 24
+            }
+        },
+        {
+            "filename": "bird_5",
+            "frame": {
+                "x": 35,
+                "y": 50,
+                "w": 34,
+                "h": 24
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 34,
+                "h": 24
+            }
+        },
+        {
+            "filename": "bird_6",
+            "frame": {
+                "x": 0,
+                "y": 75,
+                "w": 34,
+                "h": 24
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 34,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 34,
+                "h": 24
+            }
+        }
+    ],
+    "meta": {
+        "app": "https://www.leshylabs.com/apps/sstool/",
+        "version": "Leshy SpriteSheet Tool v0.8.4",
+        "image": "bird_atlas.png",
+        "size": {
+            "w": 69,
+            "h": 99
+        },
+        "scale": 1
+    }
+}
