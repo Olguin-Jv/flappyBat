@@ -1,6 +1,8 @@
 stage = {};
 stage.level1 = function () { };
 var batAnims,
+    batTween,
+    fastWing,
     jumpButton,
     keyZ,
     jumpTimer = 0,
@@ -57,11 +59,16 @@ stage.level1.prototype = {
         //BAT!!!
         this.bat = this.add.sprite(64, this.centerY, 'bat');
         this.bat.animations.add("fly", Phaser.Animation.generateFrameNames('bird_', 0, 2));
+        fastWing = this.bat.animations.add("fast-wing", ['bird_0', 'bird_1', 'bird_2', 'bird_0', 'bird_1', 'bird_2', 'bird_0', 'bird_1', 'bird_2']);
+        fastWing.onComplete.add(normalFly, this);
         this.bat.animations.add('death', Phaser.Animation.generateFrameNames('bird_', 3, 6));
         this.bat.animations.play('fly', 5, true);
         batAnims = this.bat.animations; //add all animations to a global variable
         game.physics.enable(this.bat)
         this.bat.body.gravity.y = 650;
+
+        batTween = game.add.tween(this.bat).to({ angle: 45 }, 1000, "Linear", false, 0, 0, false);
+        batTween.pendingDelete = true;
 
         this.bat.body.collideWorldBounds = true;
         bat = this.bat;
@@ -84,8 +91,16 @@ stage.level1.prototype = {
         keyUP = game.input.keyboard.addKey(Phaser.Keyboard.UP);
         keyUP.onDown.add(upJump, this);
 
+        function normalFly() {
+            batAnims.play('fly', 5, true);
+
+        }
+
         function upJump() {
             if (canMove) {
+                batAnims.play('fast-wing', 25, false);
+
+                this.bat.angle = -45;
                 this.bat.body.velocity.y = -275;
             }
         }
@@ -129,22 +144,20 @@ stage.level1.prototype = {
 
         if (this.bat.body.blocked.up || this.bat.body.blocked.down) {
             if (canCollide) {
-                console.log('bounds death')
+                console.log('bounds death');
                 death();
             }
         };
+
+        if (this.bat.angle <= 45) {
+            this.bat.angle += 1.5;
+        }
 
         if (canMove) { //ToDo: load logic to stop the bat when player loses
             this.bat.body.velocity.x = +this.speed;
         } else {
             this.bat.body.velocity.x = 0;
         }
-
-        // if (jumpButton.isDown && canMove && game.time.now > jumpTimer) {
-        //     console.log('jump')
-        //     this.bat.body.velocity.y = -275; //250
-        //     jumpTimer = game.time.now + 50;
-        // }
 
     }
 }
