@@ -6,7 +6,9 @@ function createGame() {
     game.parent = 'game-container';
     game.resolution = window.devicePixelRatio / window.devicePixelRatio;
     game.state.add('level-1', stage.level1);
-    game.state.start('level-1')
+    game.state.add('menu', stage.menu);
+
+    game.state.start('level-1');
 }
 
 function detectDevice() {
