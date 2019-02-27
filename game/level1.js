@@ -31,8 +31,9 @@ stage.level1.prototype = {
         this.load.image('box-tiles', './assets/enviroment/box-tiles.png');
 
         this.load.image('crt', './phaser/crt.png');
+        this.load.image('greyBar', './phaser/greyBar.png');
         this.load.script('filter', './phaser/Pixelate.js');
-        
+
         //particles
         this.load.image('chunk', './assets/enviroment/chunk.png');
         this.load.image('blackStar', './assets/bat/blackStar.png');
@@ -85,7 +86,7 @@ stage.level1.prototype = {
         this.coins.enableBody = true;
 
         this.map.createFromObjects('coins', 13, 'coin', 0, true, false, this.coins);
-        this.coins.callAll('animations.add', 'animations', 'spin', [0,1,2,3,4,5,6,7], 10, true);
+        this.coins.callAll('animations.add', 'animations', 'spin', [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
         this.coins.callAll('animations.play', 'animations', 'spin');
 
         //PARTICLE EMITTER
@@ -96,7 +97,7 @@ stage.level1.prototype = {
         emitter.maxParticleScale = .8;
         emitter.minParticleScale = .3;
 
-        emitter.maxSpeed= 150;
+        emitter.maxSpeed = 150;
         emitter.minAngle = -45;
         emitter.maxAngle = -135;
 
@@ -105,7 +106,7 @@ stage.level1.prototype = {
         emitter.enableBody = true;
         game.physics.enable(emitter)
 
-        
+
         //BAT!!!
         this.bat = this.add.sprite(64, this.centerY, 'bat');
         this.bat.anchor.setTo(.5);
@@ -121,7 +122,7 @@ stage.level1.prototype = {
         this.bat.filters = [filter];
         emitter.filters = [filter];
 
-        filterTween = game.add.tween(filter).from( { sizeX: 15, sizeY: 15 }, 250, "Quad.easeInOut", false, 0, 0, true);
+        filterTween = game.add.tween(filter).from({ sizeX: 15, sizeY: 15 }, 250, "Quad.easeInOut", false, 0, 0, true);
         bat = this.bat;
 
         this.bat.animations.add("fly", ['bat_0', 'bat_2', 'bat_1']);
@@ -156,9 +157,9 @@ stage.level1.prototype = {
 
         function normalFly() {
             batAnims.play('fly', 5, true);
-            
+
         }
-        
+
         function upJump() {
             if (canMove) {
                 batAnims.play('fast-wing', 25, false);
@@ -172,11 +173,17 @@ stage.level1.prototype = {
 
         /////////////////////////-----------------
 
-        this.crt =this.add.image(0,0, 'crt');
+        this.crt = this.add.image(0, 0, 'crt');
         this.crt.alpha = .1
         this.crt.fixedToCamera = true;
 
-;        /////////////////////////-----------------
+        this.greyBar = this.add.image(0, this.game.height, 'greyBar');
+        this.greyBar.height = 50;
+        this.greyBar.alpha = .1;
+
+        greyBarTween = game.add.tween(this.greyBar).to({ y: -750 }, 17000, "Linear", false, 2500, -1, false);
+        greyBarTween.start();
+        /////////////////////////-----------------
 
 
 
@@ -210,7 +217,7 @@ stage.level1.prototype = {
     },
     update: function () {
         emitter.x = this.bat.x;
-        emitter.y = this.bat.y - (this.bat.height/2.5);
+        emitter.y = this.bat.y - (this.bat.height / 2.5);
         game.physics.arcade.collide(emitter, obstacles);
 
         game.physics.arcade.collide(this.bat, obstacles, function () {
@@ -242,6 +249,7 @@ stage.level1.prototype = {
         }
 
         if (canMove) {
+            this.greyBar.x = this.bat.x - this.centerX;
             this.bat.body.velocity.x = +gameConfig.speed;
         } else {
             this.bat.body.velocity.x = 0;
