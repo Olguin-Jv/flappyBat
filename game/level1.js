@@ -8,6 +8,7 @@ var batAnims,
     keyZ,
     emitter,
     jumpTimer = 0,
+    filterTween,
     canMove = true,
     isDead = false,
     reload = false,
@@ -24,16 +25,24 @@ stage.level1.prototype = {
         this.load.image('bird', './img/gameAssets/bluebird-upflap.png');
 
         this.load.tilemap('level-1', './assets/levels/lvl1/level-1.json', null, Phaser.Tilemap.TILED_JSON);
-        this.load.image('backLayer-2', './assets/enviroment/backLayer-2.png')
-        this.load.image('clouds-1', './assets/enviroment/clouds-1.png')
-        this.load.image('tree-1', './assets/enviroment/tree-1.png')
-        this.load.image('chunk', './assets/enviroment/chunk.png')
-        this.load.image('box-tiles', './assets/enviroment/box-tiles.png')
+        this.load.image('backLayer-2', './assets/enviroment/backLayer-2.png');
+        this.load.image('clouds-1', './assets/enviroment/clouds-1.png');
+        this.load.image('tree-1', './assets/enviroment/tree-1.png');
+        this.load.image('box-tiles', './assets/enviroment/box-tiles.png');
 
+        this.load.image('crt', './phaser/crt.png');
+        this.load.script('filter', './phaser/Pixelate.js');
+        
+        //particles
+        this.load.image('chunk', './assets/enviroment/chunk.png');
+        this.load.image('blackStar', './assets/bat/blackStar.png');
+        this.load.image('blueStar', './assets/bat/blueStar.png');
 
-        // this.load.atlas('bat', './assets/bat/bird_atlas.png', './assets/bat/bird_atlas.json');
         this.load.atlas('bat', './assets/bat/bat-atlas.png', './assets/bat/bat-atlas.json');
-        // this.load.physics('physicsData', './assets/bat/sprites.json');
+        // this.load.atlas('coin', './assets/enviroment/coin.png', './assets/enviroment/coin.json');
+        game.load.spritesheet('coin', './assets/enviroment/coin.png', 128, 128, 21);
+
+        // game.load.script('crt', 'https://cdn.jsdelivr.net/npm/pixi-filters@2.6.1/dist/pixi-filters.js');
     },
     create: function () {
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -41,12 +50,11 @@ stage.level1.prototype = {
         this.stage.disableVisibilityChange = true;
 
         game.renderer.renderSession.roundPixels = true;
-        Phaser.Canvas.setImageRenderingCrisp(this.game.canvas)
+        Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 
         //VARIABLES
         this.centerX = this.game.width / 2;
         this.centerY = this.game.height / 2;
-        this.speed = 200;
         canMove = true;
         isDead = false;
         //VARIABLES
@@ -70,17 +78,34 @@ stage.level1.prototype = {
         this.trees.scrollFactorX = .9;
 
         obstacles = this.map.createLayer('obstacles');
-        this.map.setCollisionBetween(1, 11, true, 'obstacles');
+        this.map.setCollisionBetween(1, 12, true, 'obstacles');
+
+        this.map.createLayer('coins'); //////////problem here
+        this.coins = game.add.group();
+        this.coins.enableBody = true;
+
+        this.map.createFromObjects('coins', 13, 'coin', 0, true, false, this.coins);
+        this.coins.callAll('animations.add', 'animations', 'spin', [0,1,2,3,4,5,6,7], 10, true);
+        this.coins.callAll('animations.play', 'animations', 'spin');
 
         //PARTICLE EMITTER
         emitter = game.add.emitter(0, 0, 200);
+        emitter.makeParticles(['blueStar', 'blackStar']);
+        emitter.minRotation = -180;
+        emitter.maxRotation = 180;
+        emitter.maxParticleScale = .8;
+        emitter.minParticleScale = .3;
 
-        emitter.makeParticles('chunk');
-        emitter.minRotation = 0;
-        emitter.maxRotation = 0;
+        emitter.maxSpeed= 150;
+        emitter.minAngle = -45;
+        emitter.maxAngle = -135;
+
         emitter.gravity = 150;
         emitter.bounce.setTo(0.5, 0.5);
+        emitter.enableBody = true;
+        game.physics.enable(emitter)
 
+        
         //BAT!!!
         this.bat = this.add.sprite(64, this.centerY, 'bat');
         this.bat.anchor.setTo(.5);
@@ -91,6 +116,12 @@ stage.level1.prototype = {
         this.bat.body.gravity.y = gameConfig.gravity;
         this.bat.body.setSize(35, 60, 55, 15);
         this.bat.body.collideWorldBounds = true;
+
+        var filter = game.add.filter('Pixelate', this.bat.width, this.bat.height);
+        this.bat.filters = [filter];
+        emitter.filters = [filter];
+
+        filterTween = game.add.tween(filter).from( { sizeX: 15, sizeY: 15 }, 250, "Quad.easeInOut", false, 0, 0, true);
         bat = this.bat;
 
         this.bat.animations.add("fly", ['bat_0', 'bat_2', 'bat_1']);
@@ -125,18 +156,29 @@ stage.level1.prototype = {
 
         function normalFly() {
             batAnims.play('fly', 5, true);
-
+            
         }
-
+        
         function upJump() {
             if (canMove) {
                 batAnims.play('fast-wing', 25, false);
+                gameConfig.speed = gameConfig.speedAcceleration;
 
                 this.bat.angle = 45;
-                this.bat.body.angle = 45;
-                this.bat.body.velocity.y = -275;
+                this.bat.body.velocity.y = gameConfig.jump;
+
             }
         }
+
+        /////////////////////////-----------------
+
+        this.crt =this.add.image(0,0, 'crt');
+        this.crt.alpha = .1
+        this.crt.fixedToCamera = true;
+
+;        /////////////////////////-----------------
+
+
 
     },
     resize: function () {
@@ -168,13 +210,13 @@ stage.level1.prototype = {
     },
     update: function () {
         emitter.x = this.bat.x;
-        emitter.y = this.bat.y;
+        emitter.y = this.bat.y - (this.bat.height/2.5);
+        game.physics.arcade.collide(emitter, obstacles);
 
         game.physics.arcade.collide(this.bat, obstacles, function () {
             if (canCollide) {
-                console.log('column death')
+                console.log('column death');
                 death();
-                emitter.start(true, 2000, null, 100);
 
             }
         });
@@ -183,12 +225,10 @@ stage.level1.prototype = {
             if (canCollide) {
                 console.log('bounds death');
                 death();
-                emitter.start(true, 2000, null, 100);
-
             }
         };
 
-        // if (this.bat.body.blocked.right) {
+        // if (emitter) {
         //     alert('win');
         // };
         // console.log(`x: ${this.bat.x} - y: ${this.bat.y}`)
@@ -197,20 +237,28 @@ stage.level1.prototype = {
             this.bat.angle -= 1.5;
         }
 
+        if (gameConfig.speed > gameConfig.mainSpeed) {
+            gameConfig.speed -= 2.5;
+        }
+
         if (canMove) {
-            this.bat.body.velocity.x = +this.speed;
+            this.bat.body.velocity.x = +gameConfig.speed;
         } else {
             this.bat.body.velocity.x = 0;
         }
 
     },
     render: function () {
-        game.debug.body(this.bat);
+        // game.debug.body(this.bat);
     }
 }
 
 function death() {
     if (!isDead && !reload) {
+
+        emitter.start(true, -1, null, gameConfig.particles);
+        filterTween.start();
+
         canMove = false;
         isDead = true;
         reload = true;
@@ -245,14 +293,6 @@ function restartPosition() {
 
 function collisionHandler() {
     console.log(' ');
-}
-
-function particleBurst() {
-
-    emitter.x = sprite.x;
-    emitter.y = sprite.y;
-    emitter.start(true, 2000, null, 1);
-
 }
 
 //To-Do List:

@@ -2,12 +2,18 @@ var userDevice = WURFL.form_factor,
     game;
 
 var gameConfig = {
-    gravity: 650
+    speed: 175,
+    mainSpeed: 175,
+    speedAcceleration: 300,
+    jump: -275,
+    gravity: 650,
+    particles: 20
 }
 
 function createGame() {
     game = new Phaser.Game(window.innerWidth, 360, Phaser.AUTO);
     game.parent = 'game-container';
+    game.transparent = true;
     game.resolution = window.devicePixelRatio / window.devicePixelRatio;
     game.state.add('level-1', stage.level1);
     game.state.add('level-2', stage.level2);
@@ -16,7 +22,7 @@ function createGame() {
 
     game.state.start('menu');
 }
-
+ 
 function detectDevice() {
     
     if (userDevice == 'Desktop') {

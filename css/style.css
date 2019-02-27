@@ -4,6 +4,12 @@
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
+body {
+  background: black;
+}
+canvas {
+  border-radius: 20px;
+}
 #hero {
   position: relative;
   margin-top: 70px;
