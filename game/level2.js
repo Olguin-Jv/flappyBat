@@ -1,24 +1,7 @@
-stage = {};
-stage.level1 = function () { };
-var batAnims,
-    batTween,
-    fastWing,
-    jumpButton,
-    obstacles,
-    keyZ,
-    emitter,
-    jumpTimer = 0,
-    canMove = true,
-    isDead = false,
-    reload = false,
-    canCollide = true,
-    timeOut,
-    bat;
 
-// var mydata = JSON.parse('testTile');
+stage.level2 = function () { };
 
-
-stage.level1.prototype = {
+stage.level2.prototype = {
     preload: function () {
         game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
         this.load.image('bird', './img/gameAssets/bluebird-upflap.png');
@@ -27,13 +10,10 @@ stage.level1.prototype = {
         this.load.image('backLayer-2', './assets/enviroment/backLayer-2.png')
         this.load.image('clouds-1', './assets/enviroment/clouds-1.png')
         this.load.image('tree-1', './assets/enviroment/tree-1.png')
-        this.load.image('chunk', './assets/enviroment/chunk.png')
         this.load.image('box-tiles', './assets/enviroment/box-tiles.png')
 
 
-        // this.load.atlas('bat', './assets/bat/bird_atlas.png', './assets/bat/bird_atlas.json');
         this.load.atlas('bat', './assets/bat/bat-atlas.png', './assets/bat/bat-atlas.json');
-        // this.load.physics('physicsData', './assets/bat/sprites.json');
     },
     create: function () {
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -69,17 +49,8 @@ stage.level1.prototype = {
         this.trees = this.map.createLayer('tree-1');
         this.trees.scrollFactorX = .9;
 
-        obstacles = this.map.createLayer('obstacles');
-        this.map.setCollisionBetween(1, 11, true, 'obstacles');
-
-        //PARTICLE EMITTER
-        emitter = game.add.emitter(0, 0, 200);
-
-        emitter.makeParticles('chunk');
-        emitter.minRotation = 0;
-        emitter.maxRotation = 0;
-        emitter.gravity = 150;
-        emitter.bounce.setTo(0.5, 0.5);
+        obstacles = this.map.createLayer('obstacles-2');
+        this.map.setCollisionBetween(1, 11, true, 'obstacles-2');
 
         //BAT!!!
         this.bat = this.add.sprite(64, this.centerY, 'bat');
@@ -109,12 +80,6 @@ stage.level1.prototype = {
 
         keyZ = game.input.keyboard.addKey(Phaser.Keyboard.Z);
         keyZ.onDown.add(restartPosition, this);
-        keyQ = game.input.keyboard.addKey(Phaser.Keyboard.Q);
-        keyQ.onDown.add(nextLevel, this);
-        function nextLevel() {
-            console.log('change to level 2')
-            this.game.state.start('level-2', true, false)
-        }
 
 
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -167,15 +132,11 @@ stage.level1.prototype = {
 
     },
     update: function () {
-        emitter.x = this.bat.x;
-        emitter.y = this.bat.y;
 
         game.physics.arcade.collide(this.bat, obstacles, function () {
             if (canCollide) {
                 console.log('column death')
                 death();
-                emitter.start(true, 2000, null, 100);
-
             }
         });
 
@@ -183,15 +144,12 @@ stage.level1.prototype = {
             if (canCollide) {
                 console.log('bounds death');
                 death();
-                emitter.start(true, 2000, null, 100);
-
             }
         };
 
         // if (this.bat.body.blocked.right) {
         //     alert('win');
         // };
-        // console.log(`x: ${this.bat.x} - y: ${this.bat.y}`)
 
         if (this.bat.angle >= 0) {
             this.bat.angle -= 1.5;
@@ -208,68 +166,3 @@ stage.level1.prototype = {
         game.debug.body(this.bat);
     }
 }
-
-function death() {
-    if (!isDead && !reload) {
-        canMove = false;
-        isDead = true;
-        reload = true;
-        canCollide = false;
-        batAnims.play('death', 3, true);
-        bat.angle = 20;
-        console.log('death');
-        bat.body.velocity.y = -275;
-        game.camera.shake(0.005, 250);
-
-        timeOut = setTimeout(function () {
-            console.log('restart position')
-            // restartPosition();
-        }, 2000)
-    }
-}
-
-function restartPosition() {
-    console.log('restart position')
-    clearTimeout(timeOut);
-    reload = false;
-    canMove = true;
-    isDead = false;
-    bat.angle = 0;
-    batAnims.play('fly');
-    bat.x = 64;
-    bat.y = game.world.height / 2;
-    setTimeout(function () {
-        canCollide = true;
-    }, 50);
-}
-
-function collisionHandler() {
-    console.log(' ');
-}
-
-function particleBurst() {
-
-    emitter.x = sprite.x;
-    emitter.y = sprite.y;
-    emitter.start(true, 2000, null, 1);
-
-}
-
-//To-Do List:
-/**
- * PROGRAMACIÓN:
- * -detener el movimiento del juego al perder.
- * -añadir algún efecto al perder (charlar con DG)
- * -al saltar agregar una animación donde el personaje aletee más rápido
- *
- * DISEÑO:
- * -ajustar tamaños de imágenes para poder crear el tileMap correctamente
- * -rediseñar y organizar los directorios y archivos.
- * -diseñar HUD
- * -diseñar menú inicial
- * -diseñar qué se mostrará al perder
- *
- * GENERAL:
- * -añadir contador de puntaje
- * -
- */

@@ -6,7 +6,6 @@ var batAnims,
     jumpButton,
     obstacles,
     keyZ,
-    emitter,
     jumpTimer = 0,
     canMove = true,
     isDead = false,
@@ -27,7 +26,6 @@ stage.level1.prototype = {
         this.load.image('backLayer-2', './assets/enviroment/backLayer-2.png')
         this.load.image('clouds-1', './assets/enviroment/clouds-1.png')
         this.load.image('tree-1', './assets/enviroment/tree-1.png')
-        this.load.image('chunk', './assets/enviroment/chunk.png')
         this.load.image('box-tiles', './assets/enviroment/box-tiles.png')
 
 
@@ -72,15 +70,6 @@ stage.level1.prototype = {
         obstacles = this.map.createLayer('obstacles');
         this.map.setCollisionBetween(1, 11, true, 'obstacles');
 
-        //PARTICLE EMITTER
-        emitter = game.add.emitter(0, 0, 200);
-
-        emitter.makeParticles('chunk');
-        emitter.minRotation = 0;
-        emitter.maxRotation = 0;
-        emitter.gravity = 150;
-        emitter.bounce.setTo(0.5, 0.5);
-
         //BAT!!!
         this.bat = this.add.sprite(64, this.centerY, 'bat');
         this.bat.anchor.setTo(.5);
@@ -109,12 +98,6 @@ stage.level1.prototype = {
 
         keyZ = game.input.keyboard.addKey(Phaser.Keyboard.Z);
         keyZ.onDown.add(restartPosition, this);
-        keyQ = game.input.keyboard.addKey(Phaser.Keyboard.Q);
-        keyQ.onDown.add(nextLevel, this);
-        function nextLevel() {
-            console.log('change to level 2')
-            this.game.state.start('level-2', true, false)
-        }
 
 
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -167,15 +150,11 @@ stage.level1.prototype = {
 
     },
     update: function () {
-        emitter.x = this.bat.x;
-        emitter.y = this.bat.y;
 
         game.physics.arcade.collide(this.bat, obstacles, function () {
             if (canCollide) {
                 console.log('column death')
                 death();
-                emitter.start(true, 2000, null, 100);
-
             }
         });
 
@@ -183,15 +162,12 @@ stage.level1.prototype = {
             if (canCollide) {
                 console.log('bounds death');
                 death();
-                emitter.start(true, 2000, null, 100);
-
             }
         };
 
         // if (this.bat.body.blocked.right) {
         //     alert('win');
         // };
-        // console.log(`x: ${this.bat.x} - y: ${this.bat.y}`)
 
         if (this.bat.angle >= 0) {
             this.bat.angle -= 1.5;
@@ -241,18 +217,6 @@ function restartPosition() {
     setTimeout(function () {
         canCollide = true;
     }, 50);
-}
-
-function collisionHandler() {
-    console.log(' ');
-}
-
-function particleBurst() {
-
-    emitter.x = sprite.x;
-    emitter.y = sprite.y;
-    emitter.start(true, 2000, null, 1);
-
 }
 
 //To-Do List:

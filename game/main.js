@@ -1,14 +1,20 @@
 var userDevice = WURFL.form_factor,
     game;
 
+var gameConfig = {
+    gravity: 650
+}
+
 function createGame() {
-    game = new Phaser.Game(window.innerWidth, 300, Phaser.AUTO);
+    game = new Phaser.Game(window.innerWidth, 360, Phaser.AUTO);
     game.parent = 'game-container';
     game.resolution = window.devicePixelRatio / window.devicePixelRatio;
     game.state.add('level-1', stage.level1);
+    game.state.add('level-2', stage.level2);
     game.state.add('menu', stage.menu);
+    game.state.add('testLevel', stage.testLevel);
 
-    game.state.start('level-1');
+    game.state.start('menu');
 }
 
 function detectDevice() {

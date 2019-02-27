@@ -1,12 +1,11 @@
+
 stage = {};
 stage.level1 = function () { };
 var batAnims,
     batTween,
     fastWing,
     jumpButton,
-    obstacles,
     keyZ,
-    emitter,
     jumpTimer = 0,
     canMove = true,
     isDead = false,
@@ -23,25 +22,22 @@ stage.level1.prototype = {
         game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
         this.load.image('bird', './img/gameAssets/bluebird-upflap.png');
 
-        this.load.tilemap('level-1', './assets/levels/lvl1/level-1.json', null, Phaser.Tilemap.TILED_JSON);
-        this.load.image('backLayer-2', './assets/enviroment/backLayer-2.png')
-        this.load.image('clouds-1', './assets/enviroment/clouds-1.png')
-        this.load.image('tree-1', './assets/enviroment/tree-1.png')
-        this.load.image('chunk', './assets/enviroment/chunk.png')
+        this.load.tilemap('level-1', './assets/levels/level-1.json', null, Phaser.Tilemap.TILED_JSON);
+        this.load.image('bkg-scene', './assets/enviroment/bkg-scene.png')
         this.load.image('box-tiles', './assets/enviroment/box-tiles.png')
 
 
         // this.load.atlas('bat', './assets/bat/bird_atlas.png', './assets/bat/bird_atlas.json');
         this.load.atlas('bat', './assets/bat/bat-atlas.png', './assets/bat/bat-atlas.json');
-        // this.load.physics('physicsData', './assets/bat/sprites.json');
+        this.load.physics('physicsData', './assets/bat/sprites.json');
     },
     create: function () {
         game.physics.startSystem(Phaser.Physics.ARCADE);
         this.scale.pageAlignHorizontally = true;
         this.stage.disableVisibilityChange = true;
 
-        game.renderer.renderSession.roundPixels = true;
-        Phaser.Canvas.setImageRenderingCrisp(this.game.canvas)
+        // game.renderer.renderSession.roundPixels = true;
+        // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas)
 
         //VARIABLES
         this.centerX = this.game.width / 2;
@@ -52,56 +48,37 @@ stage.level1.prototype = {
         //VARIABLES
 
         this.map = this.add.tilemap('level-1');
-        this.map.addTilesetImage('clouds-1');
-        this.map.addTilesetImage('tree-1');
-        this.map.addTilesetImage('backLayer-2');
+        this.map.addTilesetImage('bkg-scene');
         this.map.addTilesetImage('box-tiles');
 
-        this.mountains = this.map.createLayer('backLayer-2');
-        this.mountains.scrollFactorX = .50;
+        this.back1 = this.map.createLayer('back-1');
+        this.back1.scrollFactorX = .70;
 
         this.clouds = this.map.createLayer('clouds-1');
-        this.clouds.scrollFactorX = .65;
-
-        this.clouds = this.map.createLayer('clouds-2');
         this.clouds.scrollFactorX = .75;
 
-        this.trees = this.map.createLayer('tree-1');
-        this.trees.scrollFactorX = .9;
+        this.clouds = this.map.createLayer('trees-1');
+        this.clouds.scrollFactorX = .9;
 
-        obstacles = this.map.createLayer('obstacles');
-        this.map.setCollisionBetween(1, 11, true, 'obstacles');
-
-        //PARTICLE EMITTER
-        emitter = game.add.emitter(0, 0, 200);
-
-        emitter.makeParticles('chunk');
-        emitter.minRotation = 0;
-        emitter.maxRotation = 0;
-        emitter.gravity = 150;
-        emitter.bounce.setTo(0.5, 0.5);
+        this.obstacles = this.map.createLayer('obstacles-1');
+        this.map.setCollisionBetween(349, 360, true, 'obstacles-1');
 
         //BAT!!!
         this.bat = this.add.sprite(64, this.centerY, 'bat');
         this.bat.anchor.setTo(.5);
-        this.bat.scale.setTo(.75);
-
-        game.physics.enable(this.bat)
-
-        this.bat.body.gravity.y = gameConfig.gravity;
-        this.bat.body.setSize(35, 60, 55, 15);
-        this.bat.body.collideWorldBounds = true;
-        bat = this.bat;
-
-        this.bat.animations.add("fly", ['bat_0', 'bat_2', 'bat_1']);
-        fastWing = this.bat.animations.add("fast-wing", ['bat_0', 'bat_2', 'bat_1', 'bat_0', 'bat_2', 'bat_1', 'bat_0', 'bat_2', 'bat_1']);
+        this.bat.animations.add("fly", Phaser.Animation.generateFrameNames('bat_', 0, 2));
+        fastWing = this.bat.animations.add("fast-wing", ['bat_0', 'bat_1', 'bat_2', 'bat_0', 'bat_1', 'bat_2', 'bat_0', 'bat_1', 'bat_2']);
         fastWing.onComplete.add(normalFly, this);
         this.bat.animations.add('death', ['bat_3']);
         this.bat.animations.play('fly', 5, true);
         batAnims = this.bat.animations; //add all animations to a global variable
+        game.physics.enable(this.bat)
+        this.bat.body.gravity.y = 650;
 
         batTween = game.add.tween(this.bat).to({ angle: 45 }, 1000, "Linear", false, 0, 0, false);
 
+        this.bat.body.collideWorldBounds = true;
+        bat = this.bat;
 
         game.camera.follow(this.bat);
         game.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHight)
@@ -109,12 +86,6 @@ stage.level1.prototype = {
 
         keyZ = game.input.keyboard.addKey(Phaser.Keyboard.Z);
         keyZ.onDown.add(restartPosition, this);
-        keyQ = game.input.keyboard.addKey(Phaser.Keyboard.Q);
-        keyQ.onDown.add(nextLevel, this);
-        function nextLevel() {
-            console.log('change to level 2')
-            this.game.state.start('level-2', true, false)
-        }
 
 
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -133,7 +104,6 @@ stage.level1.prototype = {
                 batAnims.play('fast-wing', 25, false);
 
                 this.bat.angle = 45;
-                this.bat.body.angle = 45;
                 this.bat.body.velocity.y = -275;
             }
         }
@@ -167,37 +137,26 @@ stage.level1.prototype = {
 
     },
     update: function () {
-        emitter.x = this.bat.x;
-        emitter.y = this.bat.y;
 
-        game.physics.arcade.collide(this.bat, obstacles, function () {
+        game.physics.arcade.collide(this.bat, this.obstacles, function () {
             if (canCollide) {
                 console.log('column death')
                 death();
-                emitter.start(true, 2000, null, 100);
-
             }
         });
 
-        if (this.bat.body.blocked.up || this.bat.body.blocked.down) {
-            if (canCollide) {
-                console.log('bounds death');
-                death();
-                emitter.start(true, 2000, null, 100);
-
-            }
-        };
-
-        // if (this.bat.body.blocked.right) {
-        //     alert('win');
+        // if (this.bat.body.blocked.up || this.bat.body.blocked.down) {
+        //     if (canCollide) {
+        //         console.log('bounds death');
+        //         death();
+        //     }
         // };
-        // console.log(`x: ${this.bat.x} - y: ${this.bat.y}`)
 
         if (this.bat.angle >= 0) {
             this.bat.angle -= 1.5;
         }
 
-        if (canMove) {
+        if (canMove) { //ToDo: load logic to stop the bat when player loses
             this.bat.body.velocity.x = +this.speed;
         } else {
             this.bat.body.velocity.x = 0;
@@ -223,7 +182,17 @@ function death() {
 
         timeOut = setTimeout(function () {
             console.log('restart position')
-            // restartPosition();
+            reload = false;
+            canMove = true;
+            isDead = false;
+            bat.angle = 0;
+            batAnims.play('fly');
+            bat.x = 64;
+            bat.y = game.world.height / 2;
+            setTimeout(function () {
+                canCollide = true;
+                console.log('can collide')
+            }, 50);
         }, 2000)
     }
 }
@@ -243,18 +212,6 @@ function restartPosition() {
     }, 50);
 }
 
-function collisionHandler() {
-    console.log(' ');
-}
-
-function particleBurst() {
-
-    emitter.x = sprite.x;
-    emitter.y = sprite.y;
-    emitter.start(true, 2000, null, 1);
-
-}
-
 //To-Do List:
 /**
  * PROGRAMACIÓN:
@@ -272,4 +229,18 @@ function particleBurst() {
  * GENERAL:
  * -añadir contador de puntaje
  * -
+ */
+
+ //LEER LUEGO:
+/*
+   mummy = game.add.sprite(200, 360, 'mummy', 5);
+   mummy.scale.set(4);
+   mummy.smoothed = false;
+   anim = mummy.animations.add('walk');
+
+   anim.onStart.add(animationStarted, this);
+   anim.onLoop.add(animationLooped, this);
+   anim.onComplete.add(animationStopped, this);
+
+   anim.play(10, true);
  */
