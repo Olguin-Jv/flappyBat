@@ -31,6 +31,7 @@ stage.level1.prototype = {
         this.load.image('box-tiles', './assets/enviroment/box-tiles.png');
 
         this.load.image('crt', './phaser/crt.png');
+        this.load.image('border', './phaser/border.png');
         this.load.image('greyBar', './phaser/greyBar.png');
         this.load.script('filter', './phaser/Pixelate.js');
 
@@ -40,8 +41,8 @@ stage.level1.prototype = {
         this.load.image('blueStar', './assets/bat/blueStar.png');
 
         this.load.atlas('bat', './assets/bat/bat-atlas.png', './assets/bat/bat-atlas.json');
-        // this.load.atlas('coin', './assets/enviroment/coin.png', './assets/enviroment/coin.json');
-        game.load.spritesheet('coin', './assets/enviroment/coin.png', 128, 128, 21);
+        this.load.atlas('coin', './assets/enviroment/coin.png', './assets/enviroment/coin.json');
+        // game.load.spritesheet('coin', './assets/enviroment/coin.png', 128, 128, 21);
 
         // game.load.script('crt', 'https://cdn.jsdelivr.net/npm/pixi-filters@2.6.1/dist/pixi-filters.js');
     },
@@ -81,30 +82,15 @@ stage.level1.prototype = {
         obstacles = this.map.createLayer('obstacles');
         this.map.setCollisionBetween(1, 12, true, 'obstacles');
 
-        this.map.createLayer('coins'); //////////problem here
+        ///COINS
         this.coins = game.add.group();
         this.coins.enableBody = true;
 
-        this.map.createFromObjects('coins', 13, 'coin', 0, true, false, this.coins);
-        this.coins.callAll('animations.add', 'animations', 'spin', [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
+        this.map.createFromObjects('coins', 361, 'coin', 0, true, true, this.coins);
+        this.coins.callAll('animations.add', 'animations', 'spin', Phaser.Animation.generateFrameNames('coin_', 0, 20), 10, true);
         this.coins.callAll('animations.play', 'animations', 'spin');
 
-        //PARTICLE EMITTER
-        emitter = game.add.emitter(0, 0, 200);
-        emitter.makeParticles(['blueStar', 'blackStar']);
-        emitter.minRotation = -180;
-        emitter.maxRotation = 180;
-        emitter.maxParticleScale = .8;
-        emitter.minParticleScale = .3;
 
-        emitter.maxSpeed = 150;
-        emitter.minAngle = -45;
-        emitter.maxAngle = -135;
-
-        emitter.gravity = 150;
-        emitter.bounce.setTo(0.5, 0.5);
-        emitter.enableBody = true;
-        game.physics.enable(emitter)
 
 
         //BAT!!!
@@ -117,25 +103,45 @@ stage.level1.prototype = {
         this.bat.body.gravity.y = gameConfig.gravity;
         this.bat.body.setSize(35, 60, 55, 15);
         this.bat.body.collideWorldBounds = true;
-
-        var filter = game.add.filter('Pixelate', this.bat.width, this.bat.height);
-        this.bat.filters = [filter];
-        emitter.filters = [filter];
-
-        filterTween = game.add.tween(filter).from({ sizeX: 15, sizeY: 15 }, 250, "Quad.easeInOut", false, 0, 0, true);
-        bat = this.bat;
-
+        //BAT ANIMATIONS
         this.bat.animations.add("fly", ['bat_0', 'bat_2', 'bat_1']);
         fastWing = this.bat.animations.add("fast-wing", ['bat_0', 'bat_2', 'bat_1', 'bat_0', 'bat_2', 'bat_1', 'bat_0', 'bat_2', 'bat_1']);
         fastWing.onComplete.add(normalFly, this);
         this.bat.animations.add('death', ['bat_3']);
         this.bat.animations.play('fly', 5, true);
         batAnims = this.bat.animations; //add all animations to a global variable
-
-        batTween = game.add.tween(this.bat).to({ angle: 45 }, 1000, "Linear", false, 0, 0, false);
-
-
+        //BAT TWEEN
         game.camera.follow(this.bat);
+        bat = this.bat;
+
+
+        //PARTICLE EMITTER
+        emitter = game.add.emitter(0, 0, gameConfig.particle.amount);
+        emitter.makeParticles(['blueStar', 'blackStar']);
+        emitter.minRotation = -180;
+        emitter.maxRotation = 180;
+        emitter.maxParticleScale = gameConfig.particle.maxScale;
+        emitter.minParticleScale = gameConfig.particle.minScale;
+
+        emitter.maxSpeed = gameConfig.particle.maxSpeed;
+        emitter.minSpeed = gameConfig.particle.minSpeed;
+        emitter.minAngle = -45;
+        emitter.maxAngle = -135;
+
+        emitter.gravity = gameConfig.particle.gravity;
+        emitter.bounce.setTo(0.5, 0.5);
+        emitter.enableBody = true;
+        game.physics.enable(emitter);
+
+        var filter = game.add.filter('Pixelate', this.bat.width, this.bat.height);
+        this.bat.filters = [filter];
+        emitter.filters = [filter];
+
+
+
+        filterTween = game.add.tween(filter).from({ sizeX: 15, sizeY: 15 }, 250, "Quad.easeInOut", false, 0, 0, true);
+
+
         game.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHight)
 
 
@@ -171,19 +177,27 @@ stage.level1.prototype = {
             }
         }
 
-        /////////////////////////-----------------
-
+        // /////////////////////////-----------------
+        if (oldSchool.status){
         this.crt = this.add.image(0, 0, 'crt');
-        this.crt.alpha = .1
+        this.crt.alpha = oldSchool.crtAlpa;
+        this.crt.width = this.game.width;
+        this.crt.height = this.game.height;
         this.crt.fixedToCamera = true;
 
         this.greyBar = this.add.image(0, this.game.height, 'greyBar');
         this.greyBar.height = 50;
         this.greyBar.alpha = .1;
 
-        greyBarTween = game.add.tween(this.greyBar).to({ y: -750 }, 17000, "Linear", false, 2500, -1, false);
-        greyBarTween.start();
-        /////////////////////////-----------------
+        this.border = this.add.image(0,0, 'border');
+        this.border.width = this.game.width;
+        this.border.alpha = oldSchool.borderAlpha;
+        this.border.fixedToCamera = true;
+
+
+        this.add.tween(this.greyBar).to({ y: -750 }, 17000, "Linear", true, 2500, -1, false);
+        }
+        // /////////////////////////-----------------
 
 
 
@@ -192,6 +206,7 @@ stage.level1.prototype = {
         game.scale.setGameSize(window.innerWidth, 360);
         this.centerX = this.game.width / 2;
         this.centerY = this.game.height / 2;
+        this.border.width = this.game.width;
         console.log(this.game.width);
     },
     center: function (elem, pos) {
@@ -235,11 +250,6 @@ stage.level1.prototype = {
             }
         };
 
-        // if (emitter) {
-        //     alert('win');
-        // };
-        // console.log(`x: ${this.bat.x} - y: ${this.bat.y}`)
-
         if (this.bat.angle >= 0) {
             this.bat.angle -= 1.5;
         }
@@ -249,8 +259,10 @@ stage.level1.prototype = {
         }
 
         if (canMove) {
-            this.greyBar.x = this.bat.x - this.centerX;
             this.bat.body.velocity.x = +gameConfig.speed;
+            if(oldSchool.status){
+                this.greyBar.x = game.camera.x;
+            }
         } else {
             this.bat.body.velocity.x = 0;
         }
@@ -258,13 +270,14 @@ stage.level1.prototype = {
     },
     render: function () {
         // game.debug.body(this.bat);
+        // game.debug.cameraInfo(game.camera, 32, 32);
     }
 }
 
 function death() {
     if (!isDead && !reload) {
 
-        emitter.start(true, -1, null, gameConfig.particles);
+        emitter.start(true, gameConfig.particleLifetime, null, gameConfig.particles);
         filterTween.start();
 
         canMove = false;

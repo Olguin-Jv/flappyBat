@@ -7,7 +7,27 @@ var gameConfig = {
     speedAcceleration: 300,
     jump: -275,
     gravity: 650,
-    particles: 20
+    particles: 20,
+    particleLifetime: 5000,
+    particleMaxScale: .4,
+    particleMinScale: .2,
+    particlesCant: 30,
+    particle: {
+        amount: 15,
+        lifetime: 5000,
+        maxScale: .4,
+        minScale: .2,
+        gravity: 500,
+        maxSpeed: 400,
+        minSpeed: 150
+        
+    }
+}
+
+var oldSchool = {
+    status: true,
+    crtAlpa: .1,
+    borderAlpha: .5
 }
 
 function createGame() {
