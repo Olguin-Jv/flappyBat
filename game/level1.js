@@ -92,7 +92,6 @@ stage.level1.prototype = {
 
 
 
-
         //BAT!!!
         this.bat = this.add.sprite(64, this.centerY, 'bat');
         this.bat.anchor.setTo(.5);
@@ -137,13 +136,9 @@ stage.level1.prototype = {
         this.bat.filters = [filter];
         emitter.filters = [filter];
 
-
-
         filterTween = game.add.tween(filter).from({ sizeX: 15, sizeY: 15 }, 250, "Quad.easeInOut", false, 0, 0, true);
 
-
         game.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHight)
-
 
         keyZ = game.input.keyboard.addKey(Phaser.Keyboard.Z);
         keyZ.onDown.add(restartPosition, this);
@@ -153,7 +148,6 @@ stage.level1.prototype = {
             console.log('change to level 2')
             this.game.state.start('level-2', true, false)
         }
-
 
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         jumpButton.onDown.add(upJump, this);
@@ -235,6 +229,8 @@ stage.level1.prototype = {
         emitter.y = this.bat.y - (this.bat.height / 2.5);
         game.physics.arcade.collide(emitter, obstacles);
 
+        game.physics.arcade.overlap(this.bat, this.coins, collectCoin, null, this);
+
         game.physics.arcade.collide(this.bat, obstacles, function () {
             if (canCollide) {
                 console.log('column death');
@@ -314,6 +310,12 @@ function restartPosition() {
 
 function collisionHandler() {
     console.log(' ');
+}
+
+function collectCoin(bat, coin){
+    coin.kill();
+    console.log('coin collected');
+    console.log(this.coins.children.length);
 }
 
 //To-Do List:
