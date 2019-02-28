@@ -139,6 +139,7 @@ stage.level1.prototype = {
         filterTween = game.add.tween(filter).from({ sizeX: 15, sizeY: 15 }, 250, "Quad.easeInOut", false, 0, 0, true);
 
         game.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHight)
+        this.meta = this.map.width * this.map.tileWidth - this.bat.width;
 
         keyZ = game.input.keyboard.addKey(Phaser.Keyboard.Z);
         keyZ.onDown.add(restartPosition, this);
@@ -172,24 +173,24 @@ stage.level1.prototype = {
         }
 
         // /////////////////////////-----------------
-        if (oldSchool.status){
-        this.crt = this.add.image(0, 0, 'crt');
-        this.crt.alpha = oldSchool.crtAlpa;
-        this.crt.width = this.game.width;
-        this.crt.height = this.game.height;
-        this.crt.fixedToCamera = true;
+        if (oldSchool.status) {
+            this.crt = this.add.image(0, 0, 'crt');
+            this.crt.alpha = oldSchool.crtAlpa;
+            this.crt.width = this.game.width;
+            this.crt.height = this.game.height;
+            this.crt.fixedToCamera = true;
 
-        this.greyBar = this.add.image(0, this.game.height, 'greyBar');
-        this.greyBar.height = 50;
-        this.greyBar.alpha = .1;
+            this.greyBar = this.add.image(0, this.game.height, 'greyBar');
+            this.greyBar.height = 50;
+            this.greyBar.alpha = .1;
 
-        this.border = this.add.image(0,0, 'border');
-        this.border.width = this.game.width;
-        this.border.alpha = oldSchool.borderAlpha;
-        this.border.fixedToCamera = true;
+            this.border = this.add.image(0, 0, 'border');
+            this.border.width = this.game.width;
+            this.border.alpha = oldSchool.borderAlpha;
+            this.border.fixedToCamera = true;
 
 
-        this.add.tween(this.greyBar).to({ y: -750 }, 17000, "Linear", true, 2500, -1, false);
+            this.add.tween(this.greyBar).to({ y: -750 }, 17000, "Linear", true, 2500, -1, false);
         }
         // /////////////////////////-----------------
 
@@ -225,46 +226,51 @@ stage.level1.prototype = {
 
     },
     update: function () {
-        emitter.x = this.bat.x;
-        emitter.y = this.bat.y - (this.bat.height / 2.5);
         game.physics.arcade.collide(emitter, obstacles);
-
+        
         game.physics.arcade.overlap(this.bat, this.coins, collectCoin, null, this);
-
+        
         game.physics.arcade.collide(this.bat, obstacles, function () {
             if (canCollide) {
                 console.log('column death');
                 death();
-
+                
             }
         });
-
+        
         if (this.bat.body.blocked.up || this.bat.body.blocked.down) {
             if (canCollide) {
                 console.log('bounds death');
                 death();
             }
         };
-
+        
         if (this.bat.angle >= 0) {
             this.bat.angle -= 1.5;
         }
-
+        
         if (gameConfig.speed > gameConfig.mainSpeed) {
             gameConfig.speed -= 2.5;
         }
-
+        
         if (canMove) {
+            emitter.x = this.bat.x;
+            emitter.y = this.bat.y - (this.bat.height / 2.5);
             this.bat.body.velocity.x = +gameConfig.speed;
-            if(oldSchool.status){
+            if (oldSchool.status) {
                 this.greyBar.x = game.camera.x;
             }
         } else {
             this.bat.body.velocity.x = 0;
         }
 
+        if (this.bat.x >= this.meta) {
+            console.log('llegaste a la meta');
+        }
+
     },
     render: function () {
+        // console.log(`${this.bat.x} :: ${this.meta}`)
         // game.debug.body(this.bat);
         // game.debug.cameraInfo(game.camera, 32, 32);
     }
@@ -312,7 +318,7 @@ function collisionHandler() {
     console.log(' ');
 }
 
-function collectCoin(bat, coin){
+function collectCoin(bat, coin) {
     coin.kill();
     console.log('coin collected');
     console.log(this.coins.children.length);
